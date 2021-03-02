@@ -42,6 +42,7 @@ function handleRequest(req, res) {
           if (err) {
             console.log(err);
           }
+          res.setHeader('Content-Type', 'application/json');
           res.end(user);
         }
       );
@@ -55,6 +56,20 @@ function handleRequest(req, res) {
           res.end('successfully delete');
         }
       );
+    } else if (req.method === 'PUT' && parsedUrl.pathname === '/users') {
+      var username = parsedUrl.query['username'];
+      fs.open(userDir + username + '.json', 'r+', (err, fd) => {
+        if (err) return console.log(err);
+        fs.ftruncate(fd, (err) => {
+          if (err) return console.log(err);
+          fs.writeFile(fd, store, (err) => {
+            if (err) return console.log(err);
+            fs.close(fd, () => {
+              res.end(`${username} is updated`);
+            });
+          });
+        });
+      });
     }
   });
 }
